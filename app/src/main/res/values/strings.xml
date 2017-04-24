@@ -1,4 +1,22 @@
 <resources>
     <string name="app_name">Inventory</string>
     <string name="sale">Sale</string>
+    <string name="item_name">Shirt</string>
+    <string name="item_name_hint">Name</string>
+    <string name="item_description">Shirt with long sleeves and strips</string>
+    <string name="item_description_hint">Description</string>
+    <string name="item_price">10.5</string>
+    <string name="item_price_label">Price</string>
+    <string name="item_amount">20</string>
+    <string name="item_amount_label">Amount</string>
+    <string name="supplier_email">prueba@supplier.com</string>
+    <string name="supplier_email_label">Supplier Email</string>
+    <string name="currency">USD</string>
+    <string name="button_">button</string>
+    <string name="amount_error">Amount must be positive</string>
+    <string name="name_error">Item must have a name</string>
+    <string name="description_error">Item must have a description</string>
+    <string name="price_error">Price must be positive</string>
+    <string name="email_error">Email must have a valid format</string>
+    <string name="email_error_null">Item must have supplier\'s email</string>
 </resources>

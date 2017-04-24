@@ -6,6 +6,8 @@ import android.provider.BaseColumns;
 
 /**
  * Created by Salvador on 05/01/2017.
+ *
+ * API Contract for the Inventory App
  */
 
 public final class InventoryContract {
@@ -16,7 +18,7 @@ public final class InventoryContract {
     /** Content provider URI object */
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
-    /** Pets table path */
+    /** Items table path */
     public  static final String PATH_ITEMS = "items";
 
     // To prevent someone from accidentally instantiating the contract class,
@@ -24,30 +26,37 @@ public final class InventoryContract {
     private InventoryContract() {}
 
     /**
-     * Inner class that defines constant values for the pets database table.
-     * Each entry in the table represents a single pet.
+     * Inner class that defines constant values for the items database table.
+     * Each entry in the table represents a single item.
      */
-    public static final class ItemEntry implements BaseColumns {
+    public static final class InventoryEntry implements BaseColumns {
 
-        /** Name of database table for pets */
+        /** Name of database table for items */
         public final static String TABLE_NAME = "items";
 
         /** URI constant for the class */
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_ITEMS);
 
         /**
-         * Unique ID number for the pet (only for use in the database table).
+         * Unique ID number for the item (only for use in the database table).
          *
          * Type: INTEGER
          */
         public final static String _ID = BaseColumns._ID;
 
         /**
-         * Name of the pet.
+         * Name of the item.
          *
          * Type: TEXT
          */
         public final static String COLUMN_ITEM_NAME ="name";
+
+        /**
+         * Description of the item.
+         *
+         * Type: TEXT
+         */
+        public final static String COLUMN_ITEM_DESCRIPTION ="description";
 
         /**
          * Amount in inventory.
@@ -62,6 +71,20 @@ public final class InventoryContract {
          * Type: INTEGER
          */
         public final static String COLUMN_ITEM_PRICE = "price";
+
+        /**
+         * Item picture. Path to where the picture is stored
+         *
+         * Type: TEXT
+         */
+        public final static String COLUMN_ITEM_PICTURE = "picture";
+
+        /**
+         * Supplier's email. Where to order the item.
+         *
+         * Type: TEXT
+         */
+        public final static String COLUMN_ITEM_EMAIL = "email";
 
 
         /**
