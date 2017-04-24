@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.acelerem.android.inventory.data.InventoryContract.InventoryEntry;
 
-import static com.acelerem.android.inventory.R.id.price;
-
 /**
  * Created by Salvador on 24/04/2017.
  */
@@ -60,7 +58,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
         // Find fields to populate in inflated template
         TextView tvName = (TextView) view.findViewById(R.id.product_name);
-        TextView tvPrice = (TextView) view.findViewById(price);
+        TextView tvPrice = (TextView) view.findViewById(R.id.price);
         TextView tvQty = (TextView) view.findViewById(R.id.current_qty);
         // Extract properties from cursor
         String name = cursor.getString(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_ITEM_NAME));
