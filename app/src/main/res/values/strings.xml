@@ -19,4 +19,8 @@
     <string name="price_error">Price must be positive</string>
     <string name="email_error">Email must have a valid format</string>
     <string name="email_error_null">Item must have supplier\'s email</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="editor_insert_item_failed">The item couldn\'t be inserted</string>
+    <string name="editor_insert_item_successful">The item was inserted</string>
 </resources>

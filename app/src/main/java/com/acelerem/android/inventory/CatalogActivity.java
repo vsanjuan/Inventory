@@ -20,6 +20,8 @@ import com.acelerem.android.inventory.data.InventoryContract.InventoryEntry;
 
 public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final int INVENTORY_LOADER = 0;
+
     /* This is the adapter being used to display the list data */
     private InventoryCursorAdapter mInventoryCursorAdapter;
 
@@ -27,8 +29,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-
-
 
         // Setup FAB to open EditorActivity
         FloatingActionButton fab= (FloatingActionButton) findViewById(R.id.add_product);
@@ -49,7 +49,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         inventoryListView.setAdapter(mInventoryCursorAdapter);
 
         // Kick off the loader
-        getSupportLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(INVENTORY_LOADER, null, this);
 
     }
 

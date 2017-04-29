@@ -44,14 +44,14 @@
 
             <!-- Name Field -->
             <EditText
-                android:id="@+id/product_name"
+                android:id="@+id/edit_item_name"
                 android:hint="@string/item_name_hint"
                 android:inputType="textCapWords"
                 style="@style/EditorFieldStyle" />
 
             <!-- Description Field -->
             <EditText
-                android:id="@+id/product_description"
+                android:id="@+id/edit_item_description"
                 android:hint="@string/item_description_hint"
                 android:inputType="textAutoCorrect"
                 style="@style/EditorFieldStyle" />
@@ -157,8 +157,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/action_save"
             />
-
 
 
     </LinearLayout>

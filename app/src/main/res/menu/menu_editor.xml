@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".CatalogActivity">
+    tools:context=".EditorActivity">
 
     <item
-        android:id="@+id/action_insert_dummy_data"
-        android:title="Insert Dummy Data"
-        app:showAsAction="never" />
+        android:id="@+id/action_save"
+        android:title="@string/action_save"
+        app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_delete_all_entries"
-        android:title="Delete all items"
+        android:id="@+id/action_delete"
+        android:title="@string/action_delete"
         app:showAsAction="never" />
 
 </menu>
