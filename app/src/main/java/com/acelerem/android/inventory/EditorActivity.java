@@ -1,10 +1,16 @@
 package com.acelerem.android.inventory;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,7 +19,11 @@ import android.widget.Toast;
 
 import com.acelerem.android.inventory.data.InventoryContract.InventoryEntry;
 
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor> {
+
+    /** Identifier for the pet data loader */
+    private static final int EXISTING_INVENTORY_LOADER = 0;
 
     /**
      * EditText field to enter the item's name
@@ -60,6 +70,28 @@ public class EditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        // Examine the intent that was used to launch this activity,
+        // in order to figure out if we're creating a new pet or editing an existing one.
+        Intent intent = getIntent();
+        mCurrentUri = intent.getData();
+
+        // If the intent DOES NOT contain an item content URI, then we know that we are
+        // creating a new pet.
+        if (mCurrentUri == null) {
+            // This is a new item, so change the ba to say "Add an Item"
+            setTitle(getString(R.string.editor_activity_title_new_item));
+
+            // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            invalidateOptionsMenu();
+        } else {
+            // Otherwise this is an existing pet, so change the app bar to say "Edit Pet"
+            setTitle(getString(R.string.editor_activity_title_edit_item));
+
+            // Initialize a loader to read the pet data from the database
+            // and display the current values in the editor
+            getSupportLoaderManager().initLoader(EXISTING_INVENTORY_LOADER, null, this);
+        }
 
         // Find all relevant views that will be needed to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_item_name);
@@ -145,7 +177,7 @@ public class EditorActivity extends AppCompatActivity {
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
                 // Do nothing for now
-                //showDeleteConfirmationDialog();
+                showDeleteConfirmationDialog();
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
@@ -170,10 +202,181 @@ public class EditorActivity extends AppCompatActivity {
 
 
                 // Show a dialog that notifies the user they have unsaved changes
-                //showUnsavedChangesDialog(discardButtonClickListener);
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showUnsavedChangesDialog(
+            DialogInterface.OnClickListener discardButtonClickListener) {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the postivie and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * Prompt the user to confirm that they want to delete this pet.
+     */
+    private void showDeleteConfirmationDialog() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                deleteItem();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * This method is called when the back button is pressed.
+     */
+    @Override
+    public void onBackPressed() {
+        // If the pet hasn't changed, continue with handling back button press
+        if (!mItemHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+
+        // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+        // Create a click listener to handle the user confirming that changes should be discarded.
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // User clicked "Discard" button, close the current activity.
+                        finish();
+                    }
+                };
+
+        // Show dialog that there are unsaved changes
+        showUnsavedChangesDialog(discardButtonClickListener);
+    }
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // Since the editor shows all pet attributes, define a projection that contains
+        // all columns from the pet table
+        String[] projection = {
+                InventoryEntry.COLUMN_ITEM_NAME,
+                InventoryEntry.COLUMN_ITEM_DESCRIPTION,
+                InventoryEntry.COLUMN_ITEM_PRICE,
+                InventoryEntry.COLUMN_ITEM_QTY,
+                InventoryEntry.COLUMN_ITEM_EMAIL,
+        };
+
+        // This loader will execute the ContentProvider's query method on a background thread
+
+        return new CursorLoader(this,   // Parent activity context
+                mCurrentUri,             // Query the content URI for the current item
+                projection ,            // Columns to include in the resulting Cursor
+                null,                   // No selection clause
+                null,                   // No selection arguments
+                null                    // Default sort order
+                );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Bail early if the cursor is null or there is less than 1 row in the cursor
+        if (cursor == null || cursor.getCount()<1 ) {
+            return;
+        }
+
+        // Proceed with moving to the first row of the cursor and reading data from it
+        // (This should be the only row in the cursor)
+        if (cursor.moveToFirst()) {
+            // Find the columns of Item attributes that we're interested in
+            int nameColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_NAME);
+            int descriptionColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_DESCRIPTION);
+            int priceColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_PRICE);
+            int amountColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_QTY);
+            int emailColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_EMAIL);
+
+            // Extract out the value from the Cursor for the given column index
+            String name = cursor.getString(nameColumnIndex);
+            String description = cursor.getString(descriptionColumnIndex);
+            String price = cursor.getString(priceColumnIndex);
+            String amount = cursor.getString(amountColumnIndex);
+            String email = cursor.getString(emailColumnIndex);
+
+            // Update the view on the screen wit the values from the database
+            mNameEditText.setText(name);
+            mDescriptionEditText.setText(description);
+            mPriceEditText.setText(price);
+            mQtyEditText.setText(amount);
+            mEmailEditText.setText(email);
+
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // If the loader is invalidated, clear out all the data from the input fields.
+        mNameEditText.setText("");
+        mDescriptionEditText.setText("");
+        mPriceEditText.setText("");
+        mQtyEditText.setText("");
+        mEmailEditText.setText("");
+
+    }
+
+    private void deleteItem() {
+        // Only perform the delete if this is an existing pet.
+        if (mCurrentUri != null) {
+            // Call the ContentResolver to delete the pet at the given content URI.
+            // Pass in null for the selection and selection args because the mCurrentPetUri
+            // content URI already identifies the pet that we want.
+            int rowsDeleted = getContentResolver().delete(mCurrentUri, null, null);
+
+            // Show a toast message depending on whether or not the delete was successful.
+            if (rowsDeleted == 0) {
+                // If no rows were deleted, then there was an error with the delete.
+                Toast.makeText(this, getString(R.string.editor_delete_item_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the delete was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_delete_item_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        // Close the activity
+        finish();
     }
 }

@@ -1,5 +1,6 @@
 package com.acelerem.android.inventory;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,9 +11,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.acelerem.android.inventory.data.InventoryContract.InventoryEntry;
@@ -47,6 +50,33 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         // There is no pet data yet (until the loader finishes) so pass in null for the Cursor.
         mInventoryCursorAdapter = new InventoryCursorAdapter(this, null);
         inventoryListView.setAdapter(mInventoryCursorAdapter);
+
+        // Setup the item click listener
+        inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                // Create new intent to go to {@link EditorActivity}
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+
+                // Form the content URI that represents the specific pet that was clicked on,
+                // by appending the "id" (passed as input to this method) onto the
+                // {@link PetEntry#CONTENT_URI}.
+                // For example, the uri would "content://com.example.android.items/items/2"
+                // if the item with ID 2 was clicked on.
+                Uri currentItemUri = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id);
+
+                // Set the URI on the data field on the intent
+                intent.setData(currentItemUri);
+
+                Log.i("OnClickListener", "I listen");
+
+                // Launch the {@link EditorActivity} to display the data for the current item.
+                startActivity(intent);
+            }
+
+
+        });
+
 
         // Kick off the loader
         getSupportLoaderManager().initLoader(INVENTORY_LOADER, null, this);

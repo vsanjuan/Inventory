@@ -246,7 +246,8 @@ public class InventoryProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection,
+                      @Nullable String[] selectionArgs) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case ITEMS:
