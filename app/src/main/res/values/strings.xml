@@ -64,4 +64,10 @@
     <!-- Text button to select item picture -->
     <string name="select_item_picture">Load picture</string>
 
+    <!-- Text if the name is empty -->
+    <string name="error_empty_name">A new item must has at least a name</string>
+
+    <!-- Text invalid price or amount -->
+    <string name="invalid_price_or_amount">Invalid price or amount. Cannot be negative</string>
+
 </resources>

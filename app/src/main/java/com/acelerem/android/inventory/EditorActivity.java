@@ -155,7 +155,10 @@ public class EditorActivity extends AppCompatActivity implements
         String qtyString = mQtyEditText.getText().toString().trim();
         String emailString = mEmailEditText.getText().toString().trim();
 
-
+        if (nameString == "" || TextUtils.isEmpty(nameString)) {
+            Toast.makeText(this, getString(R.string.error_empty_name), Toast.LENGTH_SHORT ).show();
+            return;
+        }
         // If the price or amount are not provided, don't try to parse teh string. Use 0
 
         double price = 0.0;
@@ -168,6 +171,13 @@ public class EditorActivity extends AppCompatActivity implements
 
         if (!TextUtils.isEmpty(qtyString)) {
             amount = Integer.parseInt(qtyString);
+
+        }
+
+        // Check the price or amount are not negative
+        if ( price < 0 || amount < 0) {
+            Toast.makeText(this, getString(R.string.invalid_price_or_amount), Toast.LENGTH_SHORT ).show();
+            return;
         }
 
         // Check the email is valid
@@ -238,8 +248,7 @@ public class EditorActivity extends AppCompatActivity implements
                         Toast.LENGTH_SHORT).show();
             }
         }
-
-
+        
 
 
     }
@@ -482,6 +491,7 @@ public class EditorActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
         // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
         // If the request code seen here doesn't match, it's the response to some other intent,
         // and the below code shouldn't run at all.
