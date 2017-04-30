@@ -79,7 +79,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         });
 
         Button buttonSale = (Button) findViewById(R.id.sale_button);
-        buttonSale.setOnClickListener((View.OnClickListener) this);
+        buttonSale.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+            }
+
+        });
 
 
 
