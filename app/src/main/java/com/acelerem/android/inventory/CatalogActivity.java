@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.acelerem.android.inventory.data.InventoryContract.InventoryEntry;
@@ -78,7 +77,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         });
 
-        Button buttonSale = (Button) findViewById(R.id.sale_button);
+/*        Button buttonSale = (Button) findViewById(R.id.sale_button);
         buttonSale.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,7 +86,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
             }
 
-        });
+        });*/
 
 
 
