@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -12,18 +14,36 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.acelerem.android.inventory.data.InventoryContract.InventoryEntry;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    /** Identifier for the pet data loader */
+    /** Identifier for the Inventory data loader */
     private static final int EXISTING_INVENTORY_LOADER = 0;
+
+
+    private static final String LOG_TAG = EditorActivity.class.getSimpleName();
+
+    /**
+     *
+     */
+
+    private ImageView mImageView;
 
     /**
      * EditText field to enter the item's name
@@ -65,6 +85,16 @@ public class EditorActivity extends AppCompatActivity implements
      **/
     private boolean mItemHasChanged = false;
 
+    // Variable to manage IntentforAction
+
+    /**
+     * Intent action variable
+     */
+
+    private static final int PICK_IMAGE_REQUEST = 0;
+    private Uri mUri;
+    private static final String STATE_URI = "STATE_URI";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +103,7 @@ public class EditorActivity extends AppCompatActivity implements
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new pet or editing an existing one.
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         mCurrentUri = intent.getData();
 
         // If the intent DOES NOT contain an item content URI, then we know that we are
@@ -93,6 +123,15 @@ public class EditorActivity extends AppCompatActivity implements
             getSupportLoaderManager().initLoader(EXISTING_INVENTORY_LOADER, null, this);
         }
 
+        // Load item image
+        Button buttonLoadImage = (Button) findViewById(R.id.buttonLoadPicture);
+        buttonLoadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openImageSelector();
+            }
+        });
+
         // Find all relevant views that will be needed to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_item_name);
         mDescriptionEditText = (EditText) findViewById(R.id.edit_item_description);
@@ -105,7 +144,7 @@ public class EditorActivity extends AppCompatActivity implements
     /**
      * Get user input from editor and save new pet into database.
      */
-    private void insertItem() {
+    private void saveItem() {
 
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
@@ -115,8 +154,43 @@ public class EditorActivity extends AppCompatActivity implements
         String qtyString = mQtyEditText.getText().toString().trim();
         String emailString = mEmailEditText.getText().toString().trim();
 
-        long price = Long.parseLong(priceString);
-        int amount = Integer.parseInt(qtyString);
+
+        // If the price or amount are not provided, don't try to parse teh string. Use 0
+
+        double price = 0.0;
+
+        if (!TextUtils.isEmpty(priceString)) {
+            price = Double.parseDouble(priceString);
+        }
+
+        int amount = 0;
+
+        if (!TextUtils.isEmpty(qtyString)) {
+            amount = Integer.parseInt(qtyString);
+        }
+
+        // Check the email is valid
+
+        String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+
+        if ( !emailString.matches(emailPattern)) {
+
+            Toast.makeText(this, getString(R.string.invalid_email), Toast.LENGTH_SHORT ).show();
+            return;
+
+        }
+
+
+        // Check if this is supposed to be a new pet
+        // and check if all the fields in the editor are blank
+        if (mCurrentUri == null &&
+                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(descriptionString) &&
+                TextUtils.isEmpty(priceString) && TextUtils.isEmpty(qtyString) &&
+                TextUtils.isEmpty(emailString)){
+            // Since no fields were modified, we can return early without creating a new pet.
+            // No need to create ContentValues and no need to do any ContentProvider operations.
+            return;
+        }
 
         // Create a ContentValues object where column names are the keys,
         // and item attributes from the editor are the values
@@ -127,19 +201,44 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(InventoryEntry.COLUMN_ITEM_QTY, amount);
         values.put(InventoryEntry.COLUMN_ITEM_EMAIL, emailString);
 
-        // Insert a new item into the provider, returning the content URI for the new item
-        Uri newURI = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
+        // Determine if this is a new or existing pet by checking if mCurrentUri is null or not
 
-        // Show a toast message depending on whether or not the insertion was successful
-        if (newURI == null) {
-            // If the new content URI is null, then there was an error with insertion.
-            Toast.makeText(this, getString(R.string.editor_insert_item_failed),
-                    Toast.LENGTH_SHORT).show();
+        if (mCurrentUri == null ) {
+
+            // Insert a new item into the provider, returning the content URI for the new item
+            Uri newURI = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
+
+            // Show a toast message depending on whether or not the insertion was successful
+            if (newURI == null) {
+                // If the new content URI is null, then there was an error with insertion.
+                Toast.makeText(this, getString(R.string.editor_insert_item_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_insert_item_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
         } else {
-            // Otherwise, the insertion was successful and we can display a toast.
-            Toast.makeText(this, getString(R.string.editor_insert_item_successful),
-                    Toast.LENGTH_SHORT).show();
+
+            // Otherwise this is an EXISTING item, so update the item with content URI: mCurrentUri
+            // and pass in the new ContentValues. Pass in null for the selection and selection args
+            // because mCurrentPetUri will already identify the correct row in the database that
+            // we want to modify.
+            int rowsAffected = getContentResolver().update(mCurrentUri, values, null, null);
+
+            // Show a toast message depending on whether or not the update was successful.
+            if (rowsAffected == 0) {
+                // If no rows were affected, then there was an error with the update.
+                Toast.makeText(this, getString(R.string.editor_update_item_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the update was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_update_item_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
+
+
 
 
     }
@@ -170,7 +269,7 @@ public class EditorActivity extends AppCompatActivity implements
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Save pet to database
-                insertItem();
+                saveItem();
                 // Exit activity
                 finish();
                 return true;
@@ -379,4 +478,84 @@ public class EditorActivity extends AppCompatActivity implements
         // Close the activity
         finish();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
+        // If the request code seen here doesn't match, it's the response to some other intent,
+        // and the below code shouldn't run at all.
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK ) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
+            if (resultData != null) {
+                mUri = resultData.getData();
+                Log.i(LOG_TAG, "Uri: " + mUri.toString());
+
+                mImageView.setImageBitmap(getBitmapFromUri(mUri));
+            }
+
+        }
+    }
+
+    public void openImageSelector() {
+        Intent intent;
+
+        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    public Bitmap getBitmapFromUri(Uri uri) {
+
+        if (uri == null || uri.toString().isEmpty())
+            return null;
+
+        // Get the dimensions of the View
+        int targetW = mImageView.getWidth();
+        int targetH = mImageView.getHeight();
+
+        InputStream input = null;
+        try {
+            input = this.getContentResolver().openInputStream(uri);
+
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+
+            input = this.getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+            return bitmap;
+
+        } catch (FileNotFoundException fne) {
+            Log.e(LOG_TAG, "Failed to load image.", fne);
+            return null;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ioe) {
+
+            }
+        }
+    }
+
 }

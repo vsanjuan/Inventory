@@ -52,4 +52,16 @@
     <!-- Toast message in editor when current item has failed to be deleted [CHAR LIMIT=NONE] -->
     <string name="editor_delete_item_failed">Error with deleting pet</string>
 
+    <!-- Toast message in editor when current pet was successfully updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_item_successful">Item updated</string>
+
+    <!-- Toast message in editor when current pet has failed to be updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_item_failed">Error with updating item</string>
+
+    <!-- Toas invalid email -->
+    <string name="invalid_email">Invalid email. Input again</string>
+
+    <!-- Text button to select item picture -->
+    <string name="select_item_picture">Load picture</string>
+
 </resources>

@@ -17,7 +17,14 @@
             android:id="@+id/product_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/fotohorchata"/>
+            />
+        <Button
+            android:id="@+id/buttonLoadPicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_item_picture"/>
+
+
 
 
     </LinearLayout>
