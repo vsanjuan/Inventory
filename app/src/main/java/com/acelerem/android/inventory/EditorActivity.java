@@ -133,6 +133,7 @@ public class EditorActivity extends AppCompatActivity implements
         });
 
         // Find all relevant views that will be needed to read user input from
+        mImageView = (ImageView) findViewById(R.id.product_image);
         mNameEditText = (EditText) findViewById(R.id.edit_item_name);
         mDescriptionEditText = (EditText) findViewById(R.id.edit_item_description);
         mPriceEditText = (EditText) findViewById(R.id.edit_item_price);
@@ -500,12 +501,17 @@ public class EditorActivity extends AppCompatActivity implements
     }
 
     public void openImageSelector() {
-        Intent intent;
+        Intent intent = new Intent();
 
-        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+
+        //intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        //intent.addCategory(Intent.CATEGORY_OPENABLE);
+        //intent.setType("image/*");
+        //startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
     public Bitmap getBitmapFromUri(Uri uri) {
