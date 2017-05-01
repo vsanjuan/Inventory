@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -88,11 +89,18 @@ public class EditorActivity extends AppCompatActivity implements
     // Variable to manage IntentforAction
 
     /**
-     * Intent action variable
+     * Variables to handle image loading
      */
 
+    /**
+     * Request code for onActivityResult intent
+     */
     private static final int PICK_IMAGE_REQUEST = 0;
-    private Uri mUri;
+
+    /**
+     * Selected Image Uri
+     */
+    private Uri mImageUri;
     private static final String STATE_URI = "STATE_URI";
 
 
@@ -142,6 +150,35 @@ public class EditorActivity extends AppCompatActivity implements
 
     }
 
+    // Make sure the Image is not lost before saving if the  user moves the phone or tablet
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mImageUri != null)
+            outState.putString(STATE_URI, mImageUri.toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState.containsKey(STATE_URI) &&
+                !savedInstanceState.getString(STATE_URI).equals("")) {
+            mImageUri = Uri.parse(savedInstanceState.getString(STATE_URI));
+
+            ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    mImageView.setImageBitmap(getBitmapFromUri(mImageUri));
+                }
+            });
+        }
+    }
+
     /**
      * Get user input from editor and save new pet into database.
      */
@@ -149,6 +186,7 @@ public class EditorActivity extends AppCompatActivity implements
 
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
+        String imageUriString = mImageUri.toString();
         String nameString = mNameEditText.getText().toString().trim();
         String descriptionString = mDescriptionEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
@@ -206,6 +244,7 @@ public class EditorActivity extends AppCompatActivity implements
         // Create a ContentValues object where column names are the keys,
         // and item attributes from the editor are the values
         ContentValues values = new ContentValues();
+        values.put(InventoryEntry.COLUMN_ITEM_IMAGE, imageUriString);
         values.put(InventoryEntry.COLUMN_ITEM_NAME, nameString);
         values.put(InventoryEntry.COLUMN_ITEM_DESCRIPTION, descriptionString);
         values.put(InventoryEntry.COLUMN_ITEM_PRICE, price);
@@ -401,6 +440,7 @@ public class EditorActivity extends AppCompatActivity implements
         // Since the editor shows all pet attributes, define a projection that contains
         // all columns from the pet table
         String[] projection = {
+                InventoryEntry.COLUMN_ITEM_IMAGE,
                 InventoryEntry.COLUMN_ITEM_NAME,
                 InventoryEntry.COLUMN_ITEM_DESCRIPTION,
                 InventoryEntry.COLUMN_ITEM_PRICE,
@@ -430,6 +470,7 @@ public class EditorActivity extends AppCompatActivity implements
         // (This should be the only row in the cursor)
         if (cursor.moveToFirst()) {
             // Find the columns of Item attributes that we're interested in
+            int imageColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_IMAGE);
             int nameColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_NAME);
             int descriptionColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_DESCRIPTION);
             int priceColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_PRICE);
@@ -437,13 +478,20 @@ public class EditorActivity extends AppCompatActivity implements
             int emailColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_EMAIL);
 
             // Extract out the value from the Cursor for the given column index
+            Uri image = Uri.parse(cursor.getString(imageColumnIndex));
             String name = cursor.getString(nameColumnIndex);
             String description = cursor.getString(descriptionColumnIndex);
             String price = cursor.getString(priceColumnIndex);
             String amount = cursor.getString(amountColumnIndex);
             String email = cursor.getString(emailColumnIndex);
 
+            Log.i("ImageUri", "Image Uri is " + image.toString());
+
+            // Get the image from the Uri
+            Bitmap bitmap = getBitmapFromUri(image);
+
             // Update the view on the screen wit the values from the database
+            mImageView.setImageBitmap(bitmap);
             mNameEditText.setText(name);
             mDescriptionEditText.setText(description);
             mPriceEditText.setText(price);
@@ -457,6 +505,7 @@ public class EditorActivity extends AppCompatActivity implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // If the loader is invalidated, clear out all the data from the input fields.
+        mImageView.setImageResource(android.R.color.transparent);
         mNameEditText.setText("");
         mDescriptionEditText.setText("");
         mPriceEditText.setText("");
@@ -501,10 +550,10 @@ public class EditorActivity extends AppCompatActivity implements
             // Instead, a URI to that document will be contained in the return intent
             // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
             if (resultData != null) {
-                mUri = resultData.getData();
-                Log.i(LOG_TAG, "Uri: " + mUri.toString());
+                mImageUri = resultData.getData();
+                Log.i(LOG_TAG, "Uri: " + mImageUri.toString());
 
-                mImageView.setImageBitmap(getBitmapFromUri(mUri));
+                mImageView.setImageBitmap(getBitmapFromUri(mImageUri));
             }
 
         }

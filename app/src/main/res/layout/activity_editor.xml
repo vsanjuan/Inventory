@@ -8,6 +8,8 @@
     android:orientation="vertical"
     tools:context="com.acelerem.android.inventory.EditorActivity">
 
+
+    <!-- Image view -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,17 +34,18 @@
 
     <!-- Product information -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
         <!-- Label -->
         <TextView
-            android:text="Product Info"
+            android:text="Product Name"
             style="@style/CategoryStyle"/>
 
-        <!-- Input Fields -->
-        <LinearLayout
+
+            <!-- Input Fields -->
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="2"
             android:layout_height="wrap_content"
@@ -56,19 +59,46 @@
                 android:inputType="textCapWords"
                 style="@style/EditorFieldStyle" />
 
-            <!-- Description Field -->
-            <EditText
-                android:id="@+id/edit_item_description"
-                android:hint="@string/item_description_hint"
-                android:inputType="textAutoCorrect"
-                style="@style/EditorFieldStyle" />
-
-
-        </LinearLayout>
-
+        </RelativeLayout>
 
     </LinearLayout>
 
+    <!-- Product description -->
+    <LinearLayout
+        android:id="@+id/container_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            android:text="Product Description"
+            style="@style/CategoryStyle"/>
+
+
+        <!-- Input Fields -->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:orientation="vertical">
+
+            <!-- Name Field -->
+            <EditText
+                android:id="@+id/edit_item_description"
+                android:hint="@string/item_name_hint"
+                android:inputType="textCapWords"
+                style="@style/EditorFieldStyle" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+
+
+    <!-- Item price -->
     <LinearLayout
         android:id="@+id/container_price"
         android:layout_width="match_parent"
@@ -99,6 +129,8 @@
 
     </LinearLayout>
 
+
+    <!-- Item amount -->
     <LinearLayout
         android:id="@+id/container_amount"
         android:layout_width="match_parent"
@@ -128,6 +160,8 @@
 
     </LinearLayout>
 
+    <!-- Item email -->
+
     <LinearLayout
         android:id="@+id/container_supplier_email"
         android:layout_width="match_parent"
@@ -155,6 +189,8 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+    <!-- Save Button -->
 
     <LinearLayout
         android:layout_width="match_parent"

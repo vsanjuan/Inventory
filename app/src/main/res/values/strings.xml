@@ -70,4 +70,7 @@
     <!-- Text invalid price or amount -->
     <string name="invalid_price_or_amount">Invalid price or amount. Cannot be negative</string>
 
+    <!-- Invalid image value on ContentProvider -->
+    <string name="image_error">Uri not valid or null</string>
+
 </resources>

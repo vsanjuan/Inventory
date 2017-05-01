@@ -157,6 +157,12 @@ public class InventoryProvider extends ContentProvider {
     private Uri insertItem(Uri uri, ContentValues values) {
 
         // Check that the name is not null
+        String image = values.getAsString(InventoryEntry.COLUMN_ITEM_IMAGE);
+        if (image == null) {
+            throw new IllegalArgumentException(String.valueOf(R.string.image_error));
+        }
+
+        // Check that the name is not null
         String name = values.getAsString(InventoryEntry.COLUMN_ITEM_NAME);
         if (name == null) {
             throw new IllegalArgumentException(String.valueOf(R.string.name_error));
@@ -164,7 +170,7 @@ public class InventoryProvider extends ContentProvider {
 
         // Check the description is not null
         String description = values.getAsString(InventoryEntry.COLUMN_ITEM_DESCRIPTION);
-        if (name == null) {
+        if (description == null) {
             throw new IllegalArgumentException(String.valueOf(R.string.description_error));
         }
 

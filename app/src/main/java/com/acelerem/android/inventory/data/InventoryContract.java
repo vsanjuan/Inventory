@@ -45,6 +45,13 @@ public final class InventoryContract {
         public final static String _ID = BaseColumns._ID;
 
         /**
+         *  Uri of the image
+         *  Type: TEXT
+         */
+
+        public final static String COLUMN_ITEM_IMAGE = "image";
+
+        /**
          * Name of the item.
          *
          * Type: TEXT
