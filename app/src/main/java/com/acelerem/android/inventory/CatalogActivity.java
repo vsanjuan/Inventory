@@ -115,7 +115,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         values.put(InventoryEntry.COLUMN_ITEM_PRICE,20);
         values.put(InventoryEntry.COLUMN_ITEM_EMAIL,"prueba@gmail.com");
 
-        // Insert operation using PetProvider method
+        // Insert operation using InventoryProvider method
         Uri newUri = getContentResolver().insert(InventoryEntry.CONTENT_URI, values);
 
     }

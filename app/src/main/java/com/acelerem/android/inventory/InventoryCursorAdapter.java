@@ -1,11 +1,16 @@
 package com.acelerem.android.inventory;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -54,7 +59,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
      */
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, final Cursor cursor) {
 
         // Find fields to populate in inflated template
         TextView tvName = (TextView) view.findViewById(R.id.product_name);
@@ -63,7 +68,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
         // Extract properties from cursor
         String name = cursor.getString(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_ITEM_NAME));
         long price = cursor.getLong(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_ITEM_PRICE));
-        int qty = cursor.getInt(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_ITEM_QTY));
+        final int qty = cursor.getInt(cursor.getColumnIndexOrThrow(InventoryEntry.COLUMN_ITEM_QTY));
 
         Log.i("Database", "Values are " + name + ", " + String.valueOf(price) + ", " +  String.valueOf(qty));
 
@@ -72,5 +77,58 @@ public class InventoryCursorAdapter extends CursorAdapter {
         tvPrice.setText(String.valueOf(price));
         tvQty.setText(String.valueOf(qty));
 
+        // Select the sale button and setup the listener
+        Button buttonSale = (Button) view.findViewById(R.id.sale_button);
+
+        buttonSale.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                // Set the ContentResolver to update the record
+                ContentResolver resolver = view.getContext().getContentResolver();
+                ContentValues values = new ContentValues();
+
+                if (qty > 0) {
+
+                    int quantity = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_QTY));
+
+
+                    /*
+                    You don't have cusorVal variable in your code.
+                    You have already got the values for quantity in quantityColumn
+                    and value of sold in soldColumn. Use the variables that you have declared.
+                    Next two lines can be deleted
+                     */
+
+                    // Get the uri from the selected record
+
+                    int idColumnIndex = cursor.getColumnIndex(InventoryEntry._ID);
+                    long id = cursor.getLong(idColumnIndex);
+                    Uri uri = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id);
+
+                    int qtyValue = quantity;
+                    values.put(InventoryEntry.COLUMN_ITEM_QTY, --qtyValue);
+
+                    resolver.update(
+                            uri,
+                            values,
+                            null,
+                            null);
+
+                    // Notify the change so the UI is updated
+                    context.getContentResolver().notifyChange(uri, null);
+
+
+                }
+
+
+            }
+        });
+
+
+
     }
+
+
 }

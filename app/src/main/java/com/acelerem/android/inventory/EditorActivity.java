@@ -1,16 +1,21 @@
 package com.acelerem.android.inventory;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -478,7 +483,7 @@ public class EditorActivity extends AppCompatActivity implements
             int emailColumnIndex = cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_EMAIL);
 
             // Extract out the value from the Cursor for the given column index
-            Uri image = Uri.parse(cursor.getString(imageColumnIndex));
+            final Uri image = Uri.parse(cursor.getString(imageColumnIndex));
             String name = cursor.getString(nameColumnIndex);
             String description = cursor.getString(descriptionColumnIndex);
             String price = cursor.getString(priceColumnIndex);
@@ -488,10 +493,19 @@ public class EditorActivity extends AppCompatActivity implements
             Log.i("ImageUri", "Image Uri is " + image.toString());
 
             // Get the image from the Uri
-            Bitmap bitmap = getBitmapFromUri(image);
+            //Bitmap bitmap = getBitmapFromUri(image);
+
+            ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    mImageView.setImageBitmap(getBitmapFromUri(image));
+                }
+            });
 
             // Update the view on the screen wit the values from the database
-            mImageView.setImageBitmap(bitmap);
+            //mImageView.setImageBitmap(bitmap);
             mNameEditText.setText(name);
             mDescriptionEditText.setText(description);
             mPriceEditText.setText(price);
@@ -560,17 +574,28 @@ public class EditorActivity extends AppCompatActivity implements
     }
 
     public void openImageSelector() {
-        Intent intent = new Intent();
 
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        // Check permissions needed
 
-        //intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        //intent.addCategory(Intent.CATEGORY_OPENABLE);
-        //intent.setType("image/*");
-        //startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (result != PackageManager.PERMISSION_GRANTED) {
+            verifyStoragePermissions(this);
+        } else {
+
+
+            Intent intent = new Intent();
+
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+
+            //intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            //intent.addCategory(Intent.CATEGORY_OPENABLE);
+            //intent.setType("image/*");
+            //startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
+        }
     }
 
     public Bitmap getBitmapFromUri(Uri uri) {
@@ -620,6 +645,28 @@ public class EditorActivity extends AppCompatActivity implements
             } catch (IOException ioe) {
 
             }
+        }
+    }
+
+
+    // This part handles the dynamic permission needd for the las
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static final String[] PERMISSINOS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    };
+
+    public static void verifyStoragePermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(
+                activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSINOS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
         }
     }
 
