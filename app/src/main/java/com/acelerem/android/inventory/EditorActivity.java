@@ -501,6 +501,7 @@ public class EditorActivity extends AppCompatActivity implements
                 public void onGlobalLayout() {
                     mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     mImageView.setImageBitmap(getBitmapFromUri(image));
+                    mImageUri = image;
                 }
             });
 

@@ -80,6 +80,10 @@ public class InventoryCursorAdapter extends CursorAdapter {
         // Select the sale button and setup the listener
         Button buttonSale = (Button) view.findViewById(R.id.sale_button);
 
+        int idColumnIndex = cursor.getColumnIndex(InventoryEntry._ID);
+        final long id = cursor.getLong(idColumnIndex);
+        final int quantity = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_QTY));
+
         buttonSale.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,7 +95,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
                 if (qty > 0) {
 
-                    int quantity = cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_ITEM_QTY));
+
 
 
                     /*
@@ -103,8 +107,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
                     // Get the uri from the selected record
 
-                    int idColumnIndex = cursor.getColumnIndex(InventoryEntry._ID);
-                    long id = cursor.getLong(idColumnIndex);
+
                     Uri uri = ContentUris.withAppendedId(InventoryEntry.CONTENT_URI, id);
 
                     int qtyValue = quantity;
