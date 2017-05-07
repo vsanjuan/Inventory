@@ -619,6 +619,8 @@ public class EditorActivity extends AppCompatActivity implements
                 mImageView.setImageBitmap(getBitmapFromUri(mImageUri));
             }
 
+        } else if ( requestCode == SEND_MAIL_REQUEST && resultCode == Activity.RESULT_OK) {
+            Toast.makeText(this, "Mensaje enviado", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -632,10 +634,10 @@ public class EditorActivity extends AppCompatActivity implements
         } else {
 
 
-            Intent intent = new Intent();
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
             intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
+            //intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
@@ -740,11 +742,12 @@ public class EditorActivity extends AppCompatActivity implements
             amount--;
         }
 
-
         mQtyEditText.setText(String.valueOf(amount));
     }
 
-    private void sendEmail(View view) {
+    // Method to send order to supplier
+
+    public void sendEmail(View view) {
         if (mCurrentUri != null) {
             String subject = "URI Example";
             String stream = "Hello! \n"
@@ -775,5 +778,7 @@ public class EditorActivity extends AppCompatActivity implements
             return;
         }
     }
+
+
 
 }
