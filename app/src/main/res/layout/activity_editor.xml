@@ -166,9 +166,6 @@
                 android:inputType="number"
                 style="@style/EditorFieldStyle"/>
 
-
-
-
         </LinearLayout>
 
     </LinearLayout>
@@ -187,26 +184,46 @@
             style="@style/CategoryStyle" />
 
         <!-- Input Field -->
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:paddingLeft="4dp">
 
-            <!-- Order button -->
-            <Button
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:text="Order"
-                android:onClick="sendEmail"/>
 
-            <!--Emamil Field -->
+            <!--Email Field -->
             <EditText
                 android:id="@+id/edit_supplier_email"
                 android:inputType="textEmailAddress"
                 style="@style/EditorFieldStyle"/>
 
-        </RelativeLayout>
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Order button -->
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order"
+            style="@style/EditorFieldStyle"
+            android:onClick="sendEmail"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            style="@style/EditorFieldStyle"
+            android:onClick="deleteButton"/>
+
 
     </LinearLayout>
 

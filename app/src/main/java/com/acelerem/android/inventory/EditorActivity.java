@@ -11,12 +11,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
-import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -248,7 +246,12 @@ public class EditorActivity extends AppCompatActivity implements
 
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
-        String imageUriString = mImageUri.toString();
+        String imageUriString = "";
+
+        if (mImageUri != null) {
+            imageUriString = mImageUri.toString();
+        }
+
         String nameString = mNameEditText.getText().toString().trim();
         String descriptionString = mDescriptionEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
@@ -637,7 +640,7 @@ public class EditorActivity extends AppCompatActivity implements
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
             intent.setType("image/*");
-            //intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
@@ -749,36 +752,42 @@ public class EditorActivity extends AppCompatActivity implements
 
     public void sendEmail(View view) {
         if (mCurrentUri != null) {
-            String subject = "URI Example";
+
+            String email = mEmailEditText.getText().toString().trim();
+            String name =mNameEditText.getText().toString().trim();
+
+
+            String subject = "Order for " + name;
             String stream = "Hello! \n"
-                    + "Uri example" + ".\n"
-                    + "Uri: " + mCurrentUri.toString() + "\n";
+                    + "Please send to our address the following amount XXX " + ".\n"
+                    + "of " + name + "\n" + "\n"
+                    + "Best Regards," + "\n" + "\n"
+                    + "Your customer"
+                    ;
 
-            Intent shareIntent = ShareCompat.IntentBuilder.from(this)
-                    .setStream(mCurrentUri)
-                    .setSubject(subject)
-                    .setText(stream)
-                    .getIntent();
+            /* Create intent */
+            final Intent emailIntent = new Intent(Intent.ACTION_SEND);
 
-            // Provide read access
-            shareIntent.setData(mCurrentUri);
-            shareIntent.setType("message/rfc822");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            /* Fill with data */
+            emailIntent.setType("plain/text");
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+            emailIntent.putExtra(Intent.EXTRA_TEXT, stream);
 
-            if (Build.VERSION.SDK_INT < 21) {
-                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            } else {
-                shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            }
-
-
-            startActivityForResult(Intent.createChooser(shareIntent, "Share with"), SEND_MAIL_REQUEST);
+            /* Send it off to the Activity-chooser */
+            startActivityForResult(Intent.createChooser(emailIntent, "Send email"), SEND_MAIL_REQUEST);
 
         } else {
             return;
         }
     }
 
+    public void deleteButton(View view) {
+
+        showDeleteConfirmationDialog();
+        deleteItem();
+
+    }
 
 
 }
