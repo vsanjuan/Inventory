@@ -26,9 +26,6 @@
             android:layout_height="wrap_content"
             android:text="@string/select_item_picture"/>
 
-
-
-
     </LinearLayout>
 
 
@@ -143,20 +140,36 @@
             style="@style/CategoryStyle" />
 
         <!-- Input Field -->
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="6"
             android:paddingLeft="4dp">
 
             <!--Amount Field -->
+
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/minus"
+                android:onClick="SubtractAmount"/>
+
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/plus"
+                android:onClick="AddAmount"/>
+
             <EditText
                 android:id="@+id/edit_item_amount"
                 android:text="@string/item_amount"
                 android:inputType="number"
                 style="@style/EditorFieldStyle"/>
 
-        </RelativeLayout>
+
+
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -190,21 +203,7 @@
 
     </LinearLayout>
 
-    <!-- Save Button -->
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/action_save"
-            />
-
-
-    </LinearLayout>
 
 
 

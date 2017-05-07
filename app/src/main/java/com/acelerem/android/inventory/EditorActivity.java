@@ -184,25 +184,21 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Get user input from editor and save new pet into database.
-     */
-    private void saveItem() {
+
+    private boolean checkItem() {
 
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
-        String imageUriString = mImageUri.toString();
         String nameString = mNameEditText.getText().toString().trim();
-        String descriptionString = mDescriptionEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
         String qtyString = mQtyEditText.getText().toString().trim();
         String emailString = mEmailEditText.getText().toString().trim();
 
         if (nameString == "" || TextUtils.isEmpty(nameString)) {
             Toast.makeText(this, getString(R.string.error_empty_name), Toast.LENGTH_SHORT ).show();
-            return;
+            return false;
         }
-        // If the price or amount are not provided, don't try to parse teh string. Use 0
+        // If the price or amount are not provided, don't try to parse the string. Use 0
 
         double price = 0.0;
 
@@ -220,7 +216,7 @@ public class EditorActivity extends AppCompatActivity implements
         // Check the price or amount are not negative
         if ( price < 0 || amount < 0) {
             Toast.makeText(this, getString(R.string.invalid_price_or_amount), Toast.LENGTH_SHORT ).show();
-            return;
+            return false;
         }
 
         // Check the email is valid
@@ -230,10 +226,43 @@ public class EditorActivity extends AppCompatActivity implements
         if ( !emailString.matches(emailPattern)) {
 
             Toast.makeText(this, getString(R.string.invalid_email), Toast.LENGTH_SHORT ).show();
-            return;
+            return false;
 
         }
 
+        return true;
+
+    }
+
+    /**
+     * Get user input from editor and save new pet into database.
+     */
+    private boolean saveItem() {
+
+        // Read from input fields
+        // Use trim to eliminate leading or trailing white space
+        String imageUriString = mImageUri.toString();
+        String nameString = mNameEditText.getText().toString().trim();
+        String descriptionString = mDescriptionEditText.getText().toString().trim();
+        String priceString = mPriceEditText.getText().toString().trim();
+        String qtyString = mQtyEditText.getText().toString().trim();
+        String emailString = mEmailEditText.getText().toString().trim();
+
+
+        // If the price or amount are not provided, don't try to parse teh string. Use 0
+
+        double price = 0.0;
+
+        if (!TextUtils.isEmpty(priceString)) {
+            price = Double.parseDouble(priceString);
+        }
+
+        int amount = 0;
+
+        if (!TextUtils.isEmpty(qtyString)) {
+            amount = Integer.parseInt(qtyString);
+
+        }
 
         // Check if this is supposed to be a new pet
         // and check if all the fields in the editor are blank
@@ -243,7 +272,7 @@ public class EditorActivity extends AppCompatActivity implements
                 TextUtils.isEmpty(emailString)){
             // Since no fields were modified, we can return early without creating a new pet.
             // No need to create ContentValues and no need to do any ContentProvider operations.
-            return;
+            return true;
         }
 
         // Create a ContentValues object where column names are the keys,
@@ -268,10 +297,12 @@ public class EditorActivity extends AppCompatActivity implements
                 // If the new content URI is null, then there was an error with insertion.
                 Toast.makeText(this, getString(R.string.editor_insert_item_failed),
                         Toast.LENGTH_SHORT).show();
+                return false;
             } else {
                 // Otherwise, the insertion was successful and we can display a toast.
                 Toast.makeText(this, getString(R.string.editor_insert_item_successful),
                         Toast.LENGTH_SHORT).show();
+                return true;
             }
         } else {
 
@@ -286,12 +317,18 @@ public class EditorActivity extends AppCompatActivity implements
                 // If no rows were affected, then there was an error with the update.
                 Toast.makeText(this, getString(R.string.editor_update_item_failed),
                         Toast.LENGTH_SHORT).show();
+                return false;
+
             } else {
                 // Otherwise, the update was successful and we can display a toast.
                 Toast.makeText(this, getString(R.string.editor_update_item_successful),
                         Toast.LENGTH_SHORT).show();
+                return true;
             }
         }
+
+
+
         
 
 
@@ -322,11 +359,15 @@ public class EditorActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Save pet to database
-                saveItem();
-                // Exit activity
-                finish();
-                return true;
+                // Check if the values are valid
+                if (checkItem()){
+                    // Save pet to database
+                    if (saveItem()) {
+                        finish();
+                        return true;
+                    }
+                }
+                break;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
                 // Do nothing for now
@@ -669,6 +710,34 @@ public class EditorActivity extends AppCompatActivity implements
                     REQUEST_EXTERNAL_STORAGE
             );
         }
+    }
+
+    // Methods to add and subtract from the quantity at hand
+
+    public void AddAmount(View view) {
+
+        int amount = Integer.parseInt(mQtyEditText.getText().toString().trim());
+        amount++;
+
+        mQtyEditText.setText(String.valueOf(amount));
+
+    }
+
+    public void SubtractAmount(View view) {
+
+        int amount = Integer.parseInt(mQtyEditText.getText().toString().trim());
+
+        if (amount <1 ){
+            Toast.makeText(this, getString(R.string.amount_error), Toast.LENGTH_SHORT ).show();
+        } else {
+            amount--;
+        }
+
+
+
+
+
+        mQtyEditText.setText(String.valueOf(amount));
     }
 
 }
