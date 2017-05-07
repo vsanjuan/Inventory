@@ -193,7 +193,14 @@
             android:layout_weight="2"
             android:paddingLeft="4dp">
 
-            <!--Amount Field -->
+            <!-- Order button -->
+            <Button
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="Order"
+                android:onClick="sendEmail"/>
+
+            <!--Emamil Field -->
             <EditText
                 android:id="@+id/edit_supplier_email"
                 android:inputType="textEmailAddress"

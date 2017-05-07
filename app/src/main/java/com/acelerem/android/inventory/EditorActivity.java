@@ -11,10 +11,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -107,6 +109,11 @@ public class EditorActivity extends AppCompatActivity implements
      */
     private Uri mImageUri;
     private static final String STATE_URI = "STATE_URI";
+
+    /**
+     * Intent for email to supplier
+     */
+    private static final int SEND_MAIL_REQUEST = 1;
 
 
     @Override
@@ -694,7 +701,7 @@ public class EditorActivity extends AppCompatActivity implements
     // This part handles the dynamic permission needd for the las
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static final String[] PERMISSINOS_STORAGE = {
+    private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
@@ -706,7 +713,7 @@ public class EditorActivity extends AppCompatActivity implements
         if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                     activity,
-                    PERMISSINOS_STORAGE,
+                    PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
         }
@@ -734,10 +741,39 @@ public class EditorActivity extends AppCompatActivity implements
         }
 
 
-
-
-
         mQtyEditText.setText(String.valueOf(amount));
+    }
+
+    private void sendEmail(View view) {
+        if (mCurrentUri != null) {
+            String subject = "URI Example";
+            String stream = "Hello! \n"
+                    + "Uri example" + ".\n"
+                    + "Uri: " + mCurrentUri.toString() + "\n";
+
+            Intent shareIntent = ShareCompat.IntentBuilder.from(this)
+                    .setStream(mCurrentUri)
+                    .setSubject(subject)
+                    .setText(stream)
+                    .getIntent();
+
+            // Provide read access
+            shareIntent.setData(mCurrentUri);
+            shareIntent.setType("message/rfc822");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            if (Build.VERSION.SDK_INT < 21) {
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            } else {
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            }
+
+
+            startActivityForResult(Intent.createChooser(shareIntent, "Share with"), SEND_MAIL_REQUEST);
+
+        } else {
+            return;
+        }
     }
 
 }
