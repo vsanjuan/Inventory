@@ -640,7 +640,7 @@ public class EditorActivity extends AppCompatActivity implements
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 
             intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
+            //intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
