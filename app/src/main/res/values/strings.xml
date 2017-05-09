@@ -5,9 +5,9 @@
     <string name="item_name_hint">Name</string>
     <string name="item_description">Shirt with long sleeves and strips</string>
     <string name="item_description_hint">Description</string>
-    <string name="item_price">10.5</string>
+    <string name="item_price">0.0</string>
     <string name="item_price_label">Price</string>
-    <string name="item_amount">20</string>
+    <string name="item_amount">0</string>
     <string name="item_amount_label">Amount</string>
     <string name="supplier_email">prueba@supplier.com</string>
     <string name="supplier_email_label">Supplier Email</string>

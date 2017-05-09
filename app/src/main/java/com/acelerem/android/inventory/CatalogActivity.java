@@ -77,18 +77,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         });
 
-/*        Button buttonSale = (Button) findViewById(R.id.sale_button);
-        buttonSale.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-
-            }
-
-        });*/
-
-
 
         // Kick off the loader
         getSupportLoaderManager().initLoader(INVENTORY_LOADER, null, this);
@@ -169,12 +157,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     public void onLoaderReset(Loader<Cursor> loader) {
 
         mInventoryCursorAdapter.changeCursor(null);
-
-    }
-
-    private void sale(){
-
-
 
     }
 

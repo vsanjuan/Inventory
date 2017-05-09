@@ -95,9 +95,6 @@ public class InventoryCursorAdapter extends CursorAdapter {
 
                 if (qty > 0) {
 
-
-
-
                     /*
                     You don't have cusorVal variable in your code.
                     You have already got the values for quantity in quantityColumn
