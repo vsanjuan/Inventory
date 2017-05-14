@@ -195,14 +195,24 @@ public class EditorActivity extends AppCompatActivity implements
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
+        String descriptionString = mDescriptionEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
         String qtyString = mQtyEditText.getText().toString().trim();
         String emailString = mEmailEditText.getText().toString().trim();
 
-        if (nameString == "" || TextUtils.isEmpty(nameString)) {
+         // if the name is empty do not save. Ask the user to enter a nem
+        if (nameString.equals("")  || TextUtils.isEmpty(nameString)) {
             Toast.makeText(this, getString(R.string.error_empty_name), Toast.LENGTH_SHORT ).show();
             return false;
         }
+
+        // if the description is empty do not save. Ask the user to enter a nem
+        if (descriptionString.equals("")  || TextUtils.isEmpty(descriptionString)) {
+            Toast.makeText(this, getString(R.string.description_error), Toast.LENGTH_SHORT ).show();
+            return false;
+        }
+
+
         // If the price or amount are not provided, don't try to parse the string. Use 0
 
         double price = 0.0;
@@ -216,6 +226,18 @@ public class EditorActivity extends AppCompatActivity implements
         if (!TextUtils.isEmpty(qtyString)) {
             amount = Integer.parseInt(qtyString);
 
+        }
+
+        // if the price is 0 do not save. Ask teh user to enter a price
+        if (price == 0) {
+            Toast.makeText(this, getString(R.string.price_empty_error), Toast.LENGTH_SHORT ).show();
+            return false;
+        }
+
+        // if the amount is 0 do not save. Ask the user to enter an amount
+        if (amount == 0) {
+            Toast.makeText(this, getString(R.string.amount_empty_error), Toast.LENGTH_SHORT ).show();
+            return false;
         }
 
         // Check the price or amount are not negative
@@ -277,11 +299,12 @@ public class EditorActivity extends AppCompatActivity implements
         // Check if this is supposed to be a new pet
         // and check if all the fields in the editor are blank
         if (mCurrentUri == null &&
-                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(descriptionString) &&
-                TextUtils.isEmpty(priceString) && TextUtils.isEmpty(qtyString) &&
+                TextUtils.isEmpty(nameString) || TextUtils.isEmpty(descriptionString) ||
+                TextUtils.isEmpty(priceString) || TextUtils.isEmpty(qtyString) ||
                 TextUtils.isEmpty(emailString)){
             // Since no fields were modified, we can return early without creating a new pet.
             // No need to create ContentValues and no need to do any ContentProvider operations.
+            Toast.makeText(this, getString(R.string.missing_information), Toast.LENGTH_SHORT ).show();
             return true;
         }
 

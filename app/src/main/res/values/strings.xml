@@ -16,9 +16,12 @@
     <string name="amount_error">Amount must be positive</string>
     <string name="name_error">Item must have a name</string>
     <string name="description_error">Item must have a description</string>
+    <string name="price_empty_error">Price cannot be 0. It must be a positive amount</string>
+    <string name="amount_empty_error">Amount cannot be 0. It must be a positive amount</string>
     <string name="price_error">Price must be positive</string>
     <string name="email_error">Email must have a valid format</string>
     <string name="email_error_null">Item must have supplier\'s email</string>
+    <string name="missing_information">You must fill all the information before saving an item</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
     <string name="editor_insert_item_failed">The item couldn\'t be inserted</string>
