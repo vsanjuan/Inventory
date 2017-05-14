@@ -73,4 +73,7 @@
     <!-- Invalid image value on ContentProvider -->
     <string name="image_error">Uri not valid or null</string>
 
+    <!-- Empty view text on Activity Catalgo -->
+    <string name="empty_view_text">Please enter the first item by pressing the button below</string>
+
 </resources>

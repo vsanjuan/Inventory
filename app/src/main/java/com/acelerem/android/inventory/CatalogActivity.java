@@ -46,6 +46,10 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         // Find the ListView which will be populated with the pet data
         ListView inventoryListView = (ListView) findViewById(R.id.list_items);
 
+        // Find and set the empty view on the ListView, so that it only shows when the list has 0 items
+        View emptyView = findViewById(R.id.empty_view);
+        inventoryListView.setEmptyView(emptyView);
+
         // Setup and adapter to create a list item for each row of pet data in the Cursor.
         // There is no pet data yet (until the loader finishes) so pass in null for the Cursor.
         mInventoryCursorAdapter = new InventoryCursorAdapter(this, null);
